@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "A genric backend for user registration with JWT & OTP auth, and using MongoDB as Database",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "nodemon index.js"
+    "start": "nodemon index.js"
   },
   "author": "LokeshV790",
   "license": "ISC",
