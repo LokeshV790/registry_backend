@@ -1,3 +1,4 @@
+// models/User.js
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -9,6 +10,13 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  verified: {
+    type: Boolean,
+    default: false
+  },
+  otp: {
+    type: String
   }
 });
 
