@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import generateOTP from '../utils/generateOTP.js';
 import sendEmail from '../utils/sendEmail.js';
@@ -49,24 +50,20 @@ async function addExtraInfo(req, res) {
     try {
         const { email, location, age, workDetails } = req.body;
 
-        // Find the user by email
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(400).json({ message: 'User not found.' });
         }
 
-        // Check if the user is verified
         if (!user.verified) {
             return res.status(400).json({ message: 'User is not verified. Please verify your email first.' });
         }
 
-        // Update user's extra information
         user.location = location;
         user.age = age;
         user.workDetails = workDetails;
 
-        // Save the updated user
         await user.save();
 
         res.status(200).json({ message: 'Additional information added successfully.' });
@@ -76,4 +73,29 @@ async function addExtraInfo(req, res) {
     }
 }
 
-export { registerUser, verifyOTP, addExtraInfo };
+async function login(req, res) {
+    try {
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+
+        const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET);
+
+        res.status(200).json({ token });
+    } catch (error) {
+        console.error('Error logging in:', error);
+        res.status(500).json({ message: 'An error occurred while logging in.' });
+    }
+}
+
+export { registerUser, verifyOTP, addExtraInfo, login };
